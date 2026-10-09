@@ -47,7 +47,7 @@ public class MainActivity extends Activity {
     private boolean prepared = false;
     private boolean seeking = false;
     private boolean darkTheme = true;
-    private boolean english = false;
+    private String appLanguage = "fa";
     private String selectedTheme = "purple";
 
     private LinearLayout root;
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         darkTheme = prefs.getBoolean("darkTheme", true);
-        english = prefs.getBoolean("english", false);
+        appLanguage = prefs.getString("appLanguage", "fa");
         selectedTheme = prefs.getString("selectedTheme", "purple");
         showHome();
 
@@ -103,13 +103,13 @@ public class MainActivity extends Activity {
 
 
     private String tr(String fa, String en) {
-        return english ? en : fa;
+        return "en".equals(appLanguage) ? en : fa;
     }
 
     private void saveSettings() {
         getPreferences(MODE_PRIVATE).edit()
                 .putBoolean("darkTheme", darkTheme)
-                .putBoolean("english", english)
+                .putString("appLanguage", appLanguage)
                 .putString("selectedTheme", selectedTheme)
                 .apply();
     }
@@ -503,17 +503,24 @@ public class MainActivity extends Activity {
         content.addView(text(tr("زبان، رنگ و ظاهر برنامه", "Language, colors and appearance"),
                 14, secondary(), false));
 
-        Button language = button(english
-                ? "🌐 Switch to Persian / تغییر به فارسی"
-                : "🌐 English / تغییر زبان به انگلیسی");
-        language.setOnClickListener(v -> {
-            english = !english;
-            saveSettings();
-            showSettings();
-        });
-        LinearLayout.LayoutParams languageLp = new LinearLayout.LayoutParams(-1, 54);
-        languageLp.setMargins(0, 14, 0, 18);
-        content.addView(language, languageLp);
+        content.addView(text("🌐 انتخاب زبان / Choose language", 18, foreground(), true));
+        String[] languageNames = {"فارسی", "دری", "پشتو", "English"};
+        String[] languageKeys = {"fa", "da", "ps", "en"};
+        for (int i = 0; i < languageKeys.length; i++) {
+            final String key = languageKeys[i];
+            Button languageButton = button(
+                    (appLanguage.equals(key) ? "✓ " : "") + languageNames[i]);
+            languageButton.setBackground(rounded(accentColor(), 24));
+            languageButton.setTextColor(Color.WHITE);
+            languageButton.setOnClickListener(v -> {
+                appLanguage = key;
+                saveSettings();
+                showSettings();
+            });
+            LinearLayout.LayoutParams languageLp = new LinearLayout.LayoutParams(-1, 50);
+            languageLp.setMargins(0, 5, 0, 5);
+            content.addView(languageButton, languageLp);
+        }
 
         content.addView(text(tr("🎨 انتخاب رنگ برنامه", "🎨 Choose app color"),
                 18, foreground(), true));
@@ -534,7 +541,7 @@ public class MainActivity extends Activity {
             final String key = keys[i];
             Button colorButton = button(
                     (selectedTheme.equals(key) ? "✓ " : "   ")
-                    + (english ? namesEn[i] : namesFa[i]));
+                    + ("en".equals(appLanguage) ? namesEn[i] : namesFa[i]));
             colorButton.setBackground(rounded(colors[i], 24));
             colorButton.setOnClickListener(v -> chooseTheme(key));
             LinearLayout.LayoutParams colorLp = new LinearLayout.LayoutParams(-1, 48);
