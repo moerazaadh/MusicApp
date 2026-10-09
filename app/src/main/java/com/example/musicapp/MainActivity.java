@@ -381,11 +381,28 @@ public class MainActivity extends Activity {
         }
     }
 
+    private void startBackgroundSong(int position) {
+        if (position < 0 || position >= songUris.size()) return;
+
+        Intent intent = new Intent(this, MusicService.class);
+        intent.setAction(MusicService.ACTION_PLAY);
+        intent.putExtra(MusicService.EXTRA_URI, songUris.get(position).toString());
+        intent.putExtra(MusicService.EXTRA_TITLE, songNames.get(position));
+        intent.putExtra(MusicService.EXTRA_ARTIST, songArtists.get(position));
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            startForegroundService(intent);
+        } else {
+            startService(intent);
+        }
+    }
+
     private void playSong(int position) {
         if (position < 0 || position >= songUris.size()) return;
 
         stopPlayer();
         currentIndex = position;
+        startBackgroundSong(position);
         prepared = false;
 
         titleText.setText(songNames.get(position));
