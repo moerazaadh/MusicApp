@@ -279,8 +279,11 @@ public class MainActivity extends Activity {
         musicList.setBackground(rounded(PANEL, 18));
         musicList.setPadding(4, 4, 4, 4);
         musicList.setSelector(android.R.color.transparent);
-        root.addView(musicList, new LinearLayout.LayoutParams(
-                -1, 0, 1));
+        LinearLayout.LayoutParams musicListParams =
+                new LinearLayout.LayoutParams(-1, 0, 1f);
+        musicListParams.setMargins(0, 8, 0, 8);
+        root.addView(musicList, musicListParams);
+        musicList.setVisibility(View.VISIBLE);
 
         musicList.setOnItemClickListener((parent, view, position, id) ->
                 playSong(position));
@@ -401,7 +404,13 @@ public class MainActivity extends Activity {
                 progressBar.setMax(Math.max(1, mp.getDuration()));
                 timeText.setText("00:00 / " + formatTime(mp.getDuration()));
             });
-            player.setOnCompletionListener(mp -> playAdjacent(1));
+            player.setOnCompletionListener(mp -> {
+                if (songUris.size() > 1) {
+                    playAdjacent(1);
+                } else {
+                    playButton.setText("▶ پخش");
+                }
+            });
             player.setOnErrorListener((mp, what, extra) -> {
                 stopPlayer();
                 playButton.setText("▶ پخش");
