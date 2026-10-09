@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,8 @@ public class MainActivity extends Activity {
     private boolean prepared = false;
     private boolean seeking = false;
     private boolean darkTheme = true;
+    private boolean english = false;
+    private String selectedTheme = "purple";
 
     private LinearLayout root;
     private TextView titleText;
@@ -79,6 +82,10 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        android.content.SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        darkTheme = prefs.getBoolean("darkTheme", true);
+        english = prefs.getBoolean("english", false);
+        selectedTheme = prefs.getString("selectedTheme", "purple");
         showHome();
 
         String permission = Build.VERSION.SDK_INT >= 33
@@ -92,6 +99,36 @@ public class MainActivity extends Activity {
         }
 
         handler.post(progressUpdater);
+    }
+
+
+    private String tr(String fa, String en) {
+        return english ? en : fa;
+    }
+
+    private void saveSettings() {
+        getPreferences(MODE_PRIVATE).edit()
+                .putBoolean("darkTheme", darkTheme)
+                .putBoolean("english", english)
+                .putString("selectedTheme", selectedTheme)
+                .apply();
+    }
+
+    private int accentColor() {
+        switch (selectedTheme) {
+            case "blue": return Color.rgb(55, 145, 255);
+            case "green": return Color.rgb(40, 190, 120);
+            case "red": return Color.rgb(240, 75, 85);
+            case "pink": return Color.rgb(245, 90, 170);
+            case "orange": return Color.rgb(255, 145, 45);
+            default: return Color.rgb(157, 104, 255);
+        }
+    }
+
+    private void chooseTheme(String theme) {
+        selectedTheme = theme;
+        saveSettings();
+        showSettings();
     }
 
     private GradientDrawable rounded(int color, int radius) {
@@ -118,7 +155,7 @@ public class MainActivity extends Activity {
         b.setTextColor(WHITE);
         b.setTextSize(14);
         b.setAllCaps(false);
-        b.setBackground(rounded(PANEL, 24));
+        b.setBackground(rounded(accentColor(), 24));
         return b;
     }
 
@@ -166,7 +203,7 @@ public class MainActivity extends Activity {
         coverText = text("♫", 76, WHITE, true);
         GradientDrawable coverBg = new GradientDrawable(
                 GradientDrawable.Orientation.TL_BR,
-                new int[]{PURPLE, Color.rgb(62, 35, 106), Color.rgb(22, 19, 39)}
+                new int[]{accentColor(), Color.rgb(62, 35, 106), Color.rgb(22, 19, 39)}
         );
         coverBg.setCornerRadius(36);
         coverText.setBackground(coverBg);
@@ -428,32 +465,91 @@ public class MainActivity extends Activity {
 
     private void showSettings() {
         setupRoot();
-        root.addView(text("⚙ تنظیمات", 26, foreground(), true));
-        root.addView(text("ظاهر برنامه و گزینه‌های ساده", 14, secondary(), false));
 
-        themeButton = button(darkTheme
-                ? "☀ فعال کردن تم روشن"
-                : "🌙 فعال کردن تم تیره");
-        themeButton.setOnClickListener(v -> {
-            darkTheme = !darkTheme;
+        ScrollView scroll = new ScrollView(this);
+        LinearLayout content = column();
+        content.setPadding(0, 0, 0, 16);
+        scroll.addView(content);
+        root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
+
+        content.addView(text(tr("⚙ تنظیمات", "⚙ Settings"),
+                26, foreground(), true));
+        content.addView(text(tr("زبان، رنگ و ظاهر برنامه", "Language, colors and appearance"),
+                14, secondary(), false));
+
+        Button language = button(english
+                ? "🌐 Switch to Persian / تغییر به فارسی"
+                : "🌐 English / تغییر زبان به انگلیسی");
+        language.setOnClickListener(v -> {
+            english = !english;
+            saveSettings();
             showSettings();
         });
-        root.addView(themeButton, new LinearLayout.LayoutParams(-1, 54));
+        content.addView(language, new LinearLayout.LayoutParams(-1, 54));
 
-        Button reload = button("⟳ تازه‌سازی فهرست آهنگ‌ها");
+        content.addView(text(tr("🎨 انتخاب رنگ برنامه", "🎨 Choose app color"),
+                18, foreground(), true));
+
+        String[] namesFa = {"بنفش", "آبی", "سبز", "قرمز", "صورتی", "نارنجی"};
+        String[] namesEn = {"Purple", "Blue", "Green", "Red", "Pink", "Orange"};
+        String[] keys = {"purple", "blue", "green", "red", "pink", "orange"};
+        int[] colors = {
+                Color.rgb(157, 104, 255),
+                Color.rgb(55, 145, 255),
+                Color.rgb(40, 190, 120),
+                Color.rgb(240, 75, 85),
+                Color.rgb(245, 90, 170),
+                Color.rgb(255, 145, 45)
+        };
+
+        for (int i = 0; i < keys.length; i++) {
+            final String key = keys[i];
+            Button colorButton = button(
+                    (selectedTheme.equals(key) ? "✓ " : "   ")
+                    + (english ? namesEn[i] : namesFa[i]));
+            colorButton.setBackground(rounded(colors[i], 24));
+            colorButton.setOnClickListener(v -> chooseTheme(key));
+            content.addView(colorButton,
+                    new LinearLayout.LayoutParams(-1, 48));
+        }
+
+        Button theme = button(darkTheme
+                ? tr("☀ فعال کردن تم روشن", "☀ Enable light mode")
+                : tr("🌙 فعال کردن تم تیره", "🌙 Enable dark mode"));
+        theme.setOnClickListener(v -> {
+            darkTheme = !darkTheme;
+            saveSettings();
+            showSettings();
+        });
+        content.addView(theme, new LinearLayout.LayoutParams(-1, 54));
+
+        Button channel = button(tr("📢 کانال تلگرام ما", "📢 Our Telegram Channel"));
+        channel.setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://t.me/Scam0093")));
+            } catch (Exception e) {
+                Toast.makeText(this,
+                        tr("باز کردن لینک ممکن نشد", "Could not open the link"),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        content.addView(channel, new LinearLayout.LayoutParams(-1, 54));
+
+        Button reload = button(tr("⟳ تازه‌سازی فهرست آهنگ‌ها", "⟳ Refresh song list"));
         reload.setOnClickListener(v -> {
             showHome();
             loadMusic();
         });
-        root.addView(reload, new LinearLayout.LayoutParams(-1, 54));
+        content.addView(reload, new LinearLayout.LayoutParams(-1, 54));
 
-        Button about = button("ⓘ درباره سازنده");
+        Button about = button(tr("ⓘ درباره سازنده", "ⓘ About the developer"));
         about.setOnClickListener(v -> showAbout());
-        root.addView(about, new LinearLayout.LayoutParams(-1, 54));
+        content.addView(about, new LinearLayout.LayoutParams(-1, 54));
 
-        Button back = button("بازگشت به صفحه اصلی");
+        Button back = button(tr("بازگشت به صفحه اصلی", "Back to Home"));
         back.setOnClickListener(v -> showHome());
-        root.addView(back, new LinearLayout.LayoutParams(-1, 54));
+        content.addView(back, new LinearLayout.LayoutParams(-1, 54));
     }
 
     private void showAbout() {
