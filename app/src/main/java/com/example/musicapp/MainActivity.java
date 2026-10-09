@@ -494,7 +494,7 @@ public class MainActivity extends Activity {
 
         ScrollView scroll = new ScrollView(this);
         LinearLayout content = column();
-        content.setPadding(0, 0, 0, 16);
+        content.setPadding(0, 8, 0, 24);
         scroll.addView(content);
         root.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
 
@@ -511,7 +511,9 @@ public class MainActivity extends Activity {
             saveSettings();
             showSettings();
         });
-        content.addView(language, new LinearLayout.LayoutParams(-1, 54));
+        LinearLayout.LayoutParams languageLp = new LinearLayout.LayoutParams(-1, 54);
+        languageLp.setMargins(0, 14, 0, 18);
+        content.addView(language, languageLp);
 
         content.addView(text(tr("🎨 انتخاب رنگ برنامه", "🎨 Choose app color"),
                 18, foreground(), true));
@@ -535,8 +537,9 @@ public class MainActivity extends Activity {
                     + (english ? namesEn[i] : namesFa[i]));
             colorButton.setBackground(rounded(colors[i], 24));
             colorButton.setOnClickListener(v -> chooseTheme(key));
-            content.addView(colorButton,
-                    new LinearLayout.LayoutParams(-1, 48));
+            LinearLayout.LayoutParams colorLp = new LinearLayout.LayoutParams(-1, 48);
+            colorLp.setMargins(0, 6, 0, 6);
+            content.addView(colorButton, colorLp);
         }
 
         Button theme = button(darkTheme
@@ -547,7 +550,9 @@ public class MainActivity extends Activity {
             saveSettings();
             showSettings();
         });
-        content.addView(theme, new LinearLayout.LayoutParams(-1, 54));
+        LinearLayout.LayoutParams themeLp = new LinearLayout.LayoutParams(-1, 54);
+        themeLp.setMargins(0, 18, 0, 14);
+        content.addView(theme, themeLp);
 
         Button channel = button(tr("📢 کانال تلگرام ما", "📢 Our Telegram Channel"));
         channel.setOnClickListener(v -> {
@@ -560,22 +565,45 @@ public class MainActivity extends Activity {
                         Toast.LENGTH_SHORT).show();
             }
         });
-        content.addView(channel, new LinearLayout.LayoutParams(-1, 54));
+        LinearLayout.LayoutParams channelLp = new LinearLayout.LayoutParams(-1, 54);
+        channelLp.setMargins(0, 8, 0, 8);
+        content.addView(channel, channelLp);
+
+        Button support = button(tr("🎧 پشتیبانی", "🎧 Support"));
+        support.setOnClickListener(v -> {
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://t.me/Merc_ifulGod")));
+            } catch (Exception e) {
+                Toast.makeText(this,
+                        tr("باز کردن تلگرام ممکن نشد", "Could not open Telegram"),
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        LinearLayout.LayoutParams supportLp = new LinearLayout.LayoutParams(-1, 54);
+        supportLp.setMargins(0, 8, 0, 8);
+        content.addView(support, supportLp);
 
         Button reload = button(tr("⟳ تازه‌سازی فهرست آهنگ‌ها", "⟳ Refresh song list"));
         reload.setOnClickListener(v -> {
             showHome();
             loadMusic();
         });
-        content.addView(reload, new LinearLayout.LayoutParams(-1, 54));
+        LinearLayout.LayoutParams reloadLp = new LinearLayout.LayoutParams(-1, 54);
+        reloadLp.setMargins(0, 8, 0, 8);
+        content.addView(reload, reloadLp);
 
         Button about = button(tr("ⓘ درباره سازنده", "ⓘ About the developer"));
         about.setOnClickListener(v -> showAbout());
-        content.addView(about, new LinearLayout.LayoutParams(-1, 54));
+        LinearLayout.LayoutParams aboutLp = new LinearLayout.LayoutParams(-1, 54);
+        aboutLp.setMargins(0, 8, 0, 8);
+        content.addView(about, aboutLp);
 
         Button back = button(tr("بازگشت به صفحه اصلی", "Back to Home"));
         back.setOnClickListener(v -> showHome());
-        content.addView(back, new LinearLayout.LayoutParams(-1, 54));
+        LinearLayout.LayoutParams backLp = new LinearLayout.LayoutParams(-1, 54);
+        backLp.setMargins(0, 8, 0, 8);
+        content.addView(back, backLp);
     }
 
     private void showAbout() {
