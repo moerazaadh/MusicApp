@@ -198,7 +198,7 @@ public class MainActivity extends Activity {
         top.addView(settings);
         root.addView(top);
 
-        root.addView(text("پخش‌کننده موزیک آفلاین", 13, secondary(), false));
+        root.addView(text(tr("پخش‌کننده موزیک آفلاین", "Offline Music Player"), 13, secondary(), false));
 
         coverText = text("♫", 76, WHITE, true);
         GradientDrawable coverBg = new GradientDrawable(
@@ -212,16 +212,16 @@ public class MainActivity extends Activity {
         coverParams.setMargins(0, 12, 0, 12);
         root.addView(coverText, coverParams);
 
-        titleText = text("آهنگی انتخاب نشده", 19, foreground(), true);
+        titleText = text(tr("آهنگی انتخاب نشده", "No song selected"), 19, foreground(), true);
         root.addView(titleText);
-        artistText = text("برای شروع، یک آهنگ انتخاب کن", 13, secondary(), false);
+        artistText = text(tr("برای شروع، یک آهنگ انتخاب کن", "Choose a song to start"), 13, secondary(), false);
         root.addView(artistText);
 
         progressBar = new SeekBar(this);
         progressBar.setProgressTintList(
-                android.content.res.ColorStateList.valueOf(PURPLE));
+                android.content.res.ColorStateList.valueOf(accentColor()));
         progressBar.setThumbTintList(
-                android.content.res.ColorStateList.valueOf(PURPLE));
+                android.content.res.ColorStateList.valueOf(accentColor()));
         root.addView(progressBar);
 
         timeText = text("00:00 / 00:00", 12, secondary(), false);
@@ -254,9 +254,9 @@ public class MainActivity extends Activity {
         });
 
         LinearLayout controls = row();
-        Button previous = button("⏮ قبلی");
-        playButton = button("▶ پخش");
-        Button next = button("بعدی ⏭");
+        Button previous = button(tr("⏮ قبلی", "⏮ Previous"));
+        playButton = button(tr("▶ پخش", "▶ Play"));
+        Button next = button(tr("Next ⏭", "Next ⏭"));
 
         previous.setOnClickListener(v -> playAdjacent(-1));
         playButton.setOnClickListener(v -> togglePlayback());
@@ -268,15 +268,15 @@ public class MainActivity extends Activity {
         root.addView(controls);
 
         LinearLayout listHeader = row();
-        listHeader.addView(text("🎵 آهنگ‌های من", 17, foreground(), true),
+        listHeader.addView(text(tr("🎵 آهنگ‌های من", "🎵 My Music"), 17, foreground(), true),
                 new LinearLayout.LayoutParams(0, -2, 1));
-        countText = text("0 آهنگ", 12, secondary(), false);
+        countText = text(tr("0 آهنگ", "0 songs"), 12, secondary(), false);
         listHeader.addView(countText);
         root.addView(listHeader);
 
         musicList = new ListView(this);
         musicList.setDividerHeight(1);
-        musicList.setBackground(rounded(PANEL, 18));
+        musicList.setBackground(rounded(darkTheme ? PANEL : Color.WHITE, 18));
         musicList.setPadding(4, 4, 4, 4);
         musicList.setSelector(android.R.color.transparent);
         LinearLayout.LayoutParams musicListParams =
@@ -289,8 +289,8 @@ public class MainActivity extends Activity {
                 playSong(position));
 
         LinearLayout bottom = row();
-        Button about = button("ⓘ درباره سازنده");
-        Button refresh = button("⟳ تازه‌سازی");
+        Button about = button(tr("ⓘ درباره سازنده", "ⓘ About"));
+        Button refresh = button(tr("⟳ تازه‌سازی", "⟳ Refresh"));
         about.setOnClickListener(v -> showAbout());
         refresh.setOnClickListener(v -> loadMusic());
         bottom.addView(about, new LinearLayout.LayoutParams(0, 48, 1));
